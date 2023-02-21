@@ -13,16 +13,19 @@ namespace CardChess {
         const float TILE_SIZE = 50f;
         const float BOTTOM_LEFT_X = -165f;
         const float BOTTOM_LEFT_Y = -60f;
+        const float BOTTOM_RIGHT_X = 550f;
+        const float BOTTOM_RIGHT_Y = -60f;
+        private int id = 0;
         private GameObject[,] board = new GameObject[9, 9];
         private GameObject board_game_object;
         private GameObject stats_prefab;
         private const int OFFSET = -4;
         private Sprite sprite;
-        private CardChess.TokenBeingMoved token_being_moved;
+        private CardChess.Token token_being_moved = null;
         private List<UnityEngine.Vector2> highlighted_tiles = new List<UnityEngine.Vector2>();
         private GameObject stats_game_obj;
+        private GameObject stats_game_obj_2;
         
-
         public static CardChess.Board Instance;
         
         public Board(Transform UI, GameObject REGULAR_TILE, Sprite sprite, GameObject stats) {
@@ -40,10 +43,16 @@ namespace CardChess {
             BuildBoard(UI);
         }
 
+        public int GenerateTokenID() {
+            this.id += 1;
+            return this.id;
+        }
+
+
         public GameObject[,] GetBoard() {return this.board;}
 
         // Sets a token at a specific spot in the board
-        public void SetToken(UnityEngine.Vector2 target_coords, CardChess.TokenBeingMoved token_being_moved) {
+        public void SetToken(UnityEngine.Vector2 target_coords, CardChess.Token token_being_moved) {
             GameObject target_tile_game_obj = this.board[(int) target_coords.y, (int) target_coords.x];
 
             // TODO: Make this generic for other tiles and not just the RegularTile
@@ -57,9 +66,15 @@ namespace CardChess {
 
             // Set target tile position to the new token
             CardChess.RegularTile target_tile = target_tile_game_obj.GetComponent<CardChess.RegularTile>();
-            target_tile.SetTokenOnTile(token_being_moved.GetToken());
+            target_tile.SetTokenOnTile(token_being_moved);
             RemoveTokenBeingMoved();
+            RemoveTokenStats(false);
+            RemoveTokenStats(true);
             UnhighlightTokens();
+        }
+
+        public bool IsShowingStats() {
+            return this.stats_game_obj != null;
         }
 
         public void UnhighlightTokens() {
@@ -72,8 +87,7 @@ namespace CardChess {
             }
         }
 
-        public void ShowValidMoves(CardChess.TokenBeingMoved token_being_moved) {
-            if (token_being_moved != null) {
+        public void ShowValidMoves(CardChess.Token token_being_moved) {
                 this.token_being_moved = token_being_moved;
                 List<UnityEngine.Vector2> movement_pattern = token_being_moved.GetToken().GetMovementPattern();
                 for (int i = 0; i < movement_pattern.Count; i ++) {
@@ -88,27 +102,41 @@ namespace CardChess {
                         }
                     }
                 }
+        }
+
+        public bool IsTokenBeingMoved() {
+            return this.token_being_moved != null;
+        }
+
+        public void ShowTokenStats(CardChess.Token token_being_hovered, bool is_first_stats) {
+            CardChess.TokenCard token = token_being_hovered.GetToken();
+            if (is_first_stats) {
+                this.stats_game_obj = GameObject.Instantiate(stats_prefab, new UnityEngine.Vector2(), UnityEngine.Quaternion.identity, this.board_game_object.transform);
+                this.stats_game_obj.transform.localPosition = new UnityEngine.Vector2(BOTTOM_LEFT_X, BOTTOM_LEFT_Y);
+                Stats stats = this.stats_game_obj.GetComponent<Stats>();
+                stats.SetStats(token);
+            } else {
+                this.stats_game_obj_2 = GameObject.Instantiate(stats_prefab, new UnityEngine.Vector2(), UnityEngine.Quaternion.identity, this.board_game_object.transform);
+                this.stats_game_obj_2.transform.localPosition = new UnityEngine.Vector2(BOTTOM_RIGHT_X, BOTTOM_RIGHT_Y);
+                Stats stats = this.stats_game_obj_2.GetComponent<Stats>();
+                stats.SetStats(token);
             }
         }
 
-        public void ShowTokenStats(CardChess.TokenBeingMoved token_being_moved) {
-            UnityEngine.Vector2 position = token_being_moved.GetPosition();
-            CardChess.TokenCard token = token_being_moved.GetToken();
-            this.stats_game_obj = GameObject.Instantiate(stats_prefab, new UnityEngine.Vector2(position.x, position.y), UnityEngine.Quaternion.identity, this.board_game_object.transform);
-            this.stats_game_obj.transform.localPosition = new UnityEngine.Vector2(BOTTOM_LEFT_X, BOTTOM_LEFT_Y);
-            Stats stats = this.stats_game_obj.GetComponent<Stats>();
+        public void RemoveTokenStats(bool is_first_stats) {
+            if (is_first_stats) {
+                GameObject.Destroy(this.stats_game_obj);
+                this.stats_game_obj = null;
+            } else {
+                GameObject.Destroy(this.stats_game_obj_2);
+                this.stats_game_obj_2 = null;
+            }
 
-            stats.SetStats(token);
-        }
-
-        public void RemoveTokenStats() {
-            GameObject.Destroy(this.stats_game_obj);
-            this.stats_game_obj = null;
         }
 
         public void RemoveTokenBeingMoved() {this.token_being_moved = null;}
 
-        public CardChess.TokenBeingMoved GetTokenBeingMoved() {return this.token_being_moved;}
+        public CardChess.Token GetTokenBeingMoved() {return this.token_being_moved;}
 
         private void BuildBoard(Transform UI) {
             for (int row = 0; row < BOARD_SIZE; row ++) {
@@ -116,7 +144,7 @@ namespace CardChess {
                     GameObject new_tile = GameObject.Instantiate(this.REGULAR_TILE, new UnityEngine.Vector2(col * TILE_SIZE, row * TILE_SIZE), UnityEngine.Quaternion.identity, this.board_game_object.transform);
 
                     // Set the positions for each tile, both for gameobject and within board matrix
-                    new_tile.GetComponent<RegularTile>().SetPosition(new UnityEngine.Vector2(col * TILE_SIZE, row * TILE_SIZE));
+                    new_tile.GetComponent<RegularTile>().SetPosition(new UnityEngine.Vector2(col, row));
 
                     new_tile.transform.localPosition = new UnityEngine.Vector2(col * TILE_SIZE, row * TILE_SIZE);
                     new_tile.name = "Tile - Row: " + row + ", Column: " + col;
@@ -126,8 +154,8 @@ namespace CardChess {
 
             CardChess.TokenCard test_token = this.CreateTokenGameObject(new List<UnityEngine.Vector2>() {new UnityEngine.Vector2(1, 0), new UnityEngine.Vector2(0, 1), new UnityEngine.Vector2(-1, 0), new UnityEngine.Vector2(0, -1), new UnityEngine.Vector2(4, -2)}, "Adrian", 5, 3);
             CardChess.TokenCard test_token_2 = this.CreateTokenGameObject(new List<UnityEngine.Vector2>() {new UnityEngine.Vector2(-1, -1), new UnityEngine.Vector2(1, 1), new UnityEngine.Vector2(-1, 1), new UnityEngine.Vector2(1, -1), new UnityEngine.Vector2(2, 2), new UnityEngine.Vector2(-2, -2), new UnityEngine.Vector2(-2, 2), new UnityEngine.Vector2(2, -2)}, "Roger", 10, 1);
-            this.SetToken(new UnityEngine.Vector2(4, 4), new CardChess.TokenBeingMoved(test_token, new UnityEngine.Vector2(-1, -1)));
-            this.SetToken(new UnityEngine.Vector2(4, 5), new CardChess.TokenBeingMoved(test_token_2, new UnityEngine.Vector2(-1, -1)));
+            this.SetToken(new UnityEngine.Vector2(4, 4), new CardChess.Token(test_token, new UnityEngine.Vector2(-1, -1)));
+            this.SetToken(new UnityEngine.Vector2(4, 5), new CardChess.Token(test_token_2, new UnityEngine.Vector2(-1, -1)));
         }
 
         private CardChess.TokenCard CreateTokenGameObject(List<UnityEngine.Vector2> movement_pattern, string name, int health, int attack) {

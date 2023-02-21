@@ -3,9 +3,9 @@ using UnityEngine;
 
 namespace CardChess {
     public interface ITile {
-    void SetTokenOnTile(CardChess.TokenCard token);
+    void SetTokenOnTile(CardChess.Token token);
     bool IsOccupied();
-    CardChess.TokenCard GetToken();
+    CardChess.Token GetToken();
     UnityEngine.Vector2 GetPosition();
     void SetPosition(UnityEngine.Vector2 position);
     void SetHighlight();
