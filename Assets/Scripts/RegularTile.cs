@@ -14,13 +14,13 @@ namespace CardChess {
         CardChess.Token token_being_moved = CardChess.Board.Instance.GetTokenBeingMoved();
         if (this.token_occupying != null) {
             if (!CardChess.Board.Instance.IsShowingStats()) {
-                    Board.Instance.ShowTokenStats(new CardChess.Token(this.token_occupying.GetToken(), this.position), true);
+                    Board.Instance.ShowTokenStats(this.token_occupying, true);
                     this.is_showing_stats = true;
             } else if (CardChess.Board.Instance.IsTokenBeingMoved() ) {
                 // Show another card in the bottom right of the screen
                 bool token_occuping_and_token_being_moved_are_different = this.token_occupying.GetID() != CardChess.Board.Instance.GetTokenBeingMoved().GetID();
                 if (token_occuping_and_token_being_moved_are_different) {
-                    Board.Instance.ShowTokenStats(new CardChess.Token(this.token_occupying.GetToken(), this.position), false);
+                    Board.Instance.ShowTokenStats(this.token_occupying, false);
                     this.is_showing_stats_2 = true;
                 }
             }
@@ -40,10 +40,18 @@ namespace CardChess {
 
     public void OnClick () {
         if (this.IsOccupied() && !CardChess.Board.Instance.IsTokenBeingMoved()) {
-            CardChess.Board.Instance.ShowValidMoves(new CardChess.Token(this.token_occupying.GetToken(), this.position));
+            CardChess.Board.Instance.ShowValidMoves(this.token_occupying);
         }
         if (this.highlighted) {
-            CardChess.Board.Instance.SetToken(this.position, CardChess.Board.Instance.GetTokenBeingMoved());
+            // If highlighted and occupied, this means that the token on this tile is being attacked
+            if (this.IsOccupied()) {
+                this.token_occupying.SetTokenHealth(-CardChess.Board.Instance.GetTokenBeingMoved().GetTokenAttack());
+                CardChess.Board.Instance.RemoveTokenBeingMoved();
+                CardChess.Board.Instance.UnhighlightTokens();
+                CardChess.Board.Instance.RemoveTokenStats(true);    
+            } else {
+                CardChess.Board.Instance.SetToken(this.position, CardChess.Board.Instance.GetTokenBeingMoved());
+            }
         }
         if (!this.IsOccupied()) {
             CardChess.Board.Instance.RemoveTokenBeingMoved();
@@ -54,7 +62,7 @@ namespace CardChess {
     
     public void SetTokenOnTile(CardChess.Token token) {
         this.token_occupying = token;
-        SetSprite(token != null ? token.GetToken().GetSprite() : null);
+        SetSprite(token != null ? token.GetSprite() : null);
     }
 
     // Function which sets the sprite currently residing on this tile, can also be null to indicate there is no token on this tile
@@ -70,12 +78,11 @@ namespace CardChess {
             GameObject token_game_obj = token_sprite_game_obj.gameObject;
         } else {
             token_image.sprite = null;
-            token_image.color = new Color(255, 255, 255, 0);
-        }
+            token_image.color = new Color(255, 255, 255, 0);        }
 
     }
 
-    public CardChess.Token GetToken() {return this.token_occupying;}
+    public CardChess.Token GetTokenOnTile() {return this.token_occupying;}
 
     public UnityEngine.Vector2 GetPosition() {return this.position;}
 
@@ -83,6 +90,11 @@ namespace CardChess {
 
     public void SetHighlight() {
         GetComponent<Image>().color = new Color(0, 0, 255);
+        this.highlighted = true;
+    }
+
+    public void SetEnemyHighlight() {
+        GetComponent<Image>().color = new Color(255, 0, 0);
         this.highlighted = true;
     }
 

@@ -67,6 +67,7 @@ namespace CardChess {
             // Set target tile position to the new token
             CardChess.RegularTile target_tile = target_tile_game_obj.GetComponent<CardChess.RegularTile>();
             target_tile.SetTokenOnTile(token_being_moved);
+            token_being_moved.SetPosition(target_coords);
             RemoveTokenBeingMoved();
             RemoveTokenStats(false);
             RemoveTokenStats(true);
@@ -89,7 +90,7 @@ namespace CardChess {
 
         public void ShowValidMoves(CardChess.Token token_being_moved) {
                 this.token_being_moved = token_being_moved;
-                List<UnityEngine.Vector2> movement_pattern = token_being_moved.GetToken().GetMovementPattern();
+                List<UnityEngine.Vector2> movement_pattern = token_being_moved.GetMovementPattern();
                 for (int i = 0; i < movement_pattern.Count; i ++) {
                     UnityEngine.Vector2 position = movement_pattern[i];
                     UnityEngine.Vector2 relative_position = new UnityEngine.Vector2(position.x + token_being_moved.GetPosition().x, position.y + token_being_moved.GetPosition().y);
@@ -99,6 +100,11 @@ namespace CardChess {
                         if (!tile.IsOccupied()) {
                             this.highlighted_tiles.Add(relative_position);
                             tile.SetHighlight();
+                        } else {
+                            if (tile.GetTokenOnTile().GetPlayer() != token_being_moved.GetPlayer()) {
+                                this.highlighted_tiles.Add(relative_position);
+                                tile.SetEnemyHighlight();
+                            }
                         }
                     }
                 }
@@ -109,17 +115,16 @@ namespace CardChess {
         }
 
         public void ShowTokenStats(CardChess.Token token_being_hovered, bool is_first_stats) {
-            CardChess.TokenCard token = token_being_hovered.GetToken();
             if (is_first_stats) {
                 this.stats_game_obj = GameObject.Instantiate(stats_prefab, new UnityEngine.Vector2(), UnityEngine.Quaternion.identity, this.board_game_object.transform);
                 this.stats_game_obj.transform.localPosition = new UnityEngine.Vector2(BOTTOM_LEFT_X, BOTTOM_LEFT_Y);
                 Stats stats = this.stats_game_obj.GetComponent<Stats>();
-                stats.SetStats(token);
+                stats.SetStats(token_being_hovered);
             } else {
                 this.stats_game_obj_2 = GameObject.Instantiate(stats_prefab, new UnityEngine.Vector2(), UnityEngine.Quaternion.identity, this.board_game_object.transform);
                 this.stats_game_obj_2.transform.localPosition = new UnityEngine.Vector2(BOTTOM_RIGHT_X, BOTTOM_RIGHT_Y);
                 Stats stats = this.stats_game_obj_2.GetComponent<Stats>();
-                stats.SetStats(token);
+                stats.SetStats(token_being_hovered);
             }
         }
 
@@ -152,15 +157,16 @@ namespace CardChess {
                 }
             }
 
-            CardChess.TokenCard test_token = this.CreateTokenGameObject(new List<UnityEngine.Vector2>() {new UnityEngine.Vector2(1, 0), new UnityEngine.Vector2(0, 1), new UnityEngine.Vector2(-1, 0), new UnityEngine.Vector2(0, -1), new UnityEngine.Vector2(4, -2)}, "Adrian", 5, 3);
-            CardChess.TokenCard test_token_2 = this.CreateTokenGameObject(new List<UnityEngine.Vector2>() {new UnityEngine.Vector2(-1, -1), new UnityEngine.Vector2(1, 1), new UnityEngine.Vector2(-1, 1), new UnityEngine.Vector2(1, -1), new UnityEngine.Vector2(2, 2), new UnityEngine.Vector2(-2, -2), new UnityEngine.Vector2(-2, 2), new UnityEngine.Vector2(2, -2)}, "Roger", 10, 1);
-            this.SetToken(new UnityEngine.Vector2(4, 4), new CardChess.Token(test_token, new UnityEngine.Vector2(-1, -1)));
-            this.SetToken(new UnityEngine.Vector2(4, 5), new CardChess.Token(test_token_2, new UnityEngine.Vector2(-1, -1)));
-        }
+            UnityEngine.Vector2 token_position = new UnityEngine.Vector2(4, 4);
+            UnityEngine.Vector2 token_position_2 = new UnityEngine.Vector2(5, 5);
 
-        private CardChess.TokenCard CreateTokenGameObject(List<UnityEngine.Vector2> movement_pattern, string name, int health, int attack) {
-            CardChess.TokenCard token = new CardChess.TokenCard(name, "Description", "Rare", 5, health, attack, movement_pattern, sprite);
-            return token;
+            CardChess.Token test_token = new CardChess.Token("Adrian", "This is Adrian, very cool card", "Rare", 5, 10, 2, new List<UnityEngine.Vector2>() {new UnityEngine.Vector2(1, 0), new UnityEngine.Vector2(0, 1), new UnityEngine.Vector2(-1, 0), new UnityEngine.Vector2(0, -1), new UnityEngine.Vector2(4, -2)}, sprite, token_position, 1);
+            CardChess.Token test_token_2 = new CardChess.Token("Roger", "A very strong card", "Ultra Rare",  3, 15, 4, new List<UnityEngine.Vector2>() {new UnityEngine.Vector2(-1, -1), new UnityEngine.Vector2(1, 1), new UnityEngine.Vector2(-1, 1), new UnityEngine.Vector2(1, -1), new UnityEngine.Vector2(2, 2), new UnityEngine.Vector2(-2, -2), new UnityEngine.Vector2(-2, 2), new UnityEngine.Vector2(2, -2)}, sprite, token_position_2, 2);
+
+            // Convert our cards into tokens
+
+            this.SetToken(token_position, test_token);
+            this.SetToken(token_position_2, test_token_2);
         }
     }
 

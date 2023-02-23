@@ -1,11 +1,15 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 // Refers to the Card form of a token, hence inheriting from the Card class.
 namespace CardChess {
         public class TokenCard : CardChess.Card {
         private int health;
         private int attack;
+        private int rarity;
+        private int casting_cost;
+        private string description;
         private readonly List<UnityEngine.Vector2> movement_pattern;
         private Sprite sprite;
 
@@ -20,16 +24,8 @@ namespace CardChess {
         public int GetHealth() {return this.health;}
 
         public int GetAttack() {return this.attack;}
+    
         public List<UnityEngine.Vector2> GetMovementPattern() {return this.movement_pattern;}
-        public int AddHealth(int health) {
-            this.health += health;
-            return this.health;
-        }
-
-        public int AddAttack(int attack) {
-            this.attack += attack;
-            return this.attack;
-        }
     }    
 }
 
