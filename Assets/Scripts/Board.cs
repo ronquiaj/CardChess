@@ -40,7 +40,18 @@ namespace CardChess {
             this.board_game_object.transform.localScale = new UnityEngine.Vector2(1, 1);
             this.sprite = sprite;
             this.stats_prefab = stats;
+
+            this.stats_game_obj = GameObject.Instantiate(stats_prefab, new UnityEngine.Vector2(), UnityEngine.Quaternion.identity, this.board_game_object.transform);
+            this.stats_game_obj.transform.localPosition = new UnityEngine.Vector2(BOTTOM_LEFT_X, BOTTOM_LEFT_Y);
+
+            this.stats_game_obj_2 = GameObject.Instantiate(stats_prefab, new UnityEngine.Vector2(), UnityEngine.Quaternion.identity, this.board_game_object.transform);
+            this.stats_game_obj_2.transform.localPosition = new UnityEngine.Vector2(BOTTOM_RIGHT_X, BOTTOM_RIGHT_Y);
+
             BuildBoard(UI);
+        }
+
+        public bool IsShowingStats() {
+            return this.stats_game_obj.activeSelf;
         }
 
         public int GenerateTokenID() {
@@ -69,13 +80,7 @@ namespace CardChess {
             target_tile.SetTokenOnTile(token_being_moved);
             token_being_moved.SetPosition(target_coords);
             RemoveTokenBeingMoved();
-            RemoveTokenStats(false);
-            RemoveTokenStats(true);
             UnhighlightTokens();
-        }
-
-        public bool IsShowingStats() {
-            return this.stats_game_obj != null;
         }
 
         public void UnhighlightTokens() {
@@ -116,27 +121,20 @@ namespace CardChess {
 
         public void ShowTokenStats(CardChess.Token token_being_hovered, bool is_first_stats) {
             if (is_first_stats) {
-                this.stats_game_obj = GameObject.Instantiate(stats_prefab, new UnityEngine.Vector2(), UnityEngine.Quaternion.identity, this.board_game_object.transform);
-                this.stats_game_obj.transform.localPosition = new UnityEngine.Vector2(BOTTOM_LEFT_X, BOTTOM_LEFT_Y);
                 Stats stats = this.stats_game_obj.GetComponent<Stats>();
                 stats.SetStats(token_being_hovered);
             } else {
-                this.stats_game_obj_2 = GameObject.Instantiate(stats_prefab, new UnityEngine.Vector2(), UnityEngine.Quaternion.identity, this.board_game_object.transform);
-                this.stats_game_obj_2.transform.localPosition = new UnityEngine.Vector2(BOTTOM_RIGHT_X, BOTTOM_RIGHT_Y);
-                Stats stats = this.stats_game_obj_2.GetComponent<Stats>();
-                stats.SetStats(token_being_hovered);
+                Stats stats_2 = this.stats_game_obj_2.GetComponent<Stats>();
+                
+                // Show damage stats
+                stats_2.SetStats(token_being_hovered);
+                stats_2.ShowDamageAmount(token_being_hovered.GetTokenHealth(), -token_being_moved.GetTokenAttack());
             }
         }
 
-        public void RemoveTokenStats(bool is_first_stats) {
-            if (is_first_stats) {
-                GameObject.Destroy(this.stats_game_obj);
-                this.stats_game_obj = null;
-            } else {
-                GameObject.Destroy(this.stats_game_obj_2);
-                this.stats_game_obj_2 = null;
-            }
-
+        public void HideStats(bool is_first_stats) {
+            if (is_first_stats) this.stats_game_obj.GetComponent<Stats>().HideStats();
+            else this.stats_game_obj_2.GetComponent<Stats>().HideStats();
         }
 
         public void RemoveTokenBeingMoved() {this.token_being_moved = null;}
