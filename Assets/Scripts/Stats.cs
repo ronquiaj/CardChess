@@ -22,6 +22,8 @@ public class Stats : MonoBehaviour {
 
         public void HideStats() {
             gameObject.SetActive(false);
+            GameObject new_health_game_obj = transform.Find("New Health").gameObject;
+            new_health_game_obj.SetActive(false);
         }
 
         public void ShowDamageAmount(int token_health, int health_adder) {
