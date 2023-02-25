@@ -91,6 +91,7 @@ namespace CardChess {
                     highlighted_tile.RemoveHighlight();
                 }
             }
+            this.highlighted_tiles = new List<UnityEngine.Vector2>();
         }
 
         public void ShowValidMoves(CardChess.Token token_being_moved) {
@@ -125,10 +126,17 @@ namespace CardChess {
                 stats.SetStats(token_being_hovered);
             } else {
                 Stats stats_2 = this.stats_game_obj_2.GetComponent<Stats>();
-                
-                // Show damage stats
+
                 stats_2.SetStats(token_being_hovered);
-                stats_2.ShowDamageAmount(token_being_hovered.GetTokenHealth(), -token_being_moved.GetTokenAttack());
+
+                // Show damage stats if applicable
+                UnityEngine.Vector2 token_being_hovered_position = token_being_hovered.GetPosition();
+                foreach (UnityEngine.Vector2 position in highlighted_tiles) {
+                    if (position.x == token_being_hovered_position.x && position.y == token_being_hovered_position.y) {
+                        stats_2.ShowDamageAmount(token_being_hovered.GetTokenHealth(), -token_being_moved.GetTokenAttack());
+                        break;
+                    }
+                }
             }
         }
 
