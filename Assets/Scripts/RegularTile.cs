@@ -53,7 +53,12 @@ namespace CardChess {
         if (this.highlighted) {
             // If highlighted and occupied, this means that the token on this tile is being attacked
             if (this.IsOccupied()) {
-                this.token_occupying.SetTokenHealth(-CardChess.Board.Instance.GetTokenBeingMoved().GetTokenAttack());
+                int new_health = this.token_occupying.SetTokenHealth(-CardChess.Board.Instance.GetTokenBeingMoved().GetTokenAttack());
+                if (new_health <= 0) {
+                    CardChess.Board.Instance.KillToken(this.token_occupying.GetPosition());
+                    this.token_occupying = null;
+                    this.SetSprite(null);
+                }
                 CardChess.Board.Instance.RemoveTokenBeingMoved();
                 CardChess.Board.Instance.UnhighlightTokens();
                 CardChess.Board.Instance.HideStats(true); 

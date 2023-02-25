@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Collections.Generic;
 using UnityEditor.SceneTemplate;
+using UnityEditor;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace CardChess {
     public class Board 
@@ -25,6 +27,8 @@ namespace CardChess {
         private List<UnityEngine.Vector2> highlighted_tiles = new List<UnityEngine.Vector2>();
         private GameObject stats_game_obj;
         private GameObject stats_game_obj_2;
+
+        private List<CardChess.Token> graveyard = new List<CardChess.Token>();
         
         public static CardChess.Board Instance;
         
@@ -81,6 +85,12 @@ namespace CardChess {
             token_being_moved.SetPosition(target_coords);
             RemoveTokenBeingMoved();
             UnhighlightTokens();
+        }
+
+        public void KillToken(UnityEngine.Vector2 token_position) {
+            GameObject token_game_obj = this.board[(int) token_position.y, (int) token_position.x];
+            CardChess.Token token = token_game_obj.GetComponent<CardChess.RegularTile>().GetTokenOnTile();
+            this.graveyard.Add(token);
         }
 
         public void UnhighlightTokens() {
