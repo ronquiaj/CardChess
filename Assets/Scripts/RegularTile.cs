@@ -21,6 +21,15 @@ namespace CardChess {
                 // Show another card in the bottom right of the screen
                 bool token_occuping_and_token_being_moved_are_different = this.token_occupying.GetID() != CardChess.Board.Instance.GetTokenBeingMoved().GetID();
                 if (token_occuping_and_token_being_moved_are_different) {
+                    // Show damage stats if applicable
+                    UnityEngine.Vector2 token_being_hovered_position = this.token_occupying.GetPosition();
+                    foreach (UnityEngine.Vector2 position in CardChess.Board.Instance.GetHighlightedTiles()) {
+                        if (position.x == token_being_hovered_position.x && position.y == token_being_hovered_position.y) {
+                            CardChess.SecondaryStats.Instance.ShowDamageAmount(token_occupying.GetTokenHealth(), -token_being_moved.GetTokenAttack());
+                            break;
+                        }
+                    }
+
                     CardChess.SecondaryStats.Instance.SetStats(this.token_occupying);
                     this.is_showing_stats_2 = true;
                 }

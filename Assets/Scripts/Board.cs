@@ -39,9 +39,6 @@ namespace CardChess {
             return this.id;
         }
 
-
-        public GameObject[,] GetBoard() {return this.board;}
-
         // Sets a token at a specific spot in the board
         public void SetToken(UnityEngine.Vector2 target_coords, CardChess.Token token_being_moved) {
             GameObject target_tile_game_obj = this.board[(int) target_coords.y, (int) target_coords.x];
@@ -80,36 +77,6 @@ namespace CardChess {
             this.highlighted_tiles = new List<UnityEngine.Vector2>();
         }
 
-        public void ShowValidMoves(CardChess.Token token_being_moved) {
-                this.token_being_moved = token_being_moved;
-                List<UnityEngine.Vector2> movement_pattern = token_being_moved.GetMovementPattern();
-                for (int i = 0; i < movement_pattern.Count; i ++) {
-                    UnityEngine.Vector2 position = movement_pattern[i];
-                    UnityEngine.Vector2 relative_position = new UnityEngine.Vector2(position.x + token_being_moved.GetPosition().x, position.y + token_being_moved.GetPosition().y);
-                    if (!((relative_position.x > BOARD_SIZE - 1) || (relative_position.y > BOARD_SIZE - 1) || (relative_position.x < 0) || (relative_position.y < 0))) {
-                        GameObject tile_game_obj = this.board[(int) relative_position.y, (int) relative_position.x];
-                        CardChess.RegularTile tile = tile_game_obj.GetComponent<RegularTile>();
-                        if (!tile.IsOccupied()) {
-                            this.highlighted_tiles.Add(relative_position);
-                            tile.SetHighlight();
-                        } else {
-                            if (tile.GetTokenOnTile().GetPlayer() != token_being_moved.GetPlayer()) {
-                                this.highlighted_tiles.Add(relative_position);
-                                tile.SetEnemyHighlight();
-                            }
-                        }
-                    }
-                }
-        }
-
-        public bool IsTokenBeingMoved() {
-            return this.token_being_moved != null;
-        }
-
-        public void RemoveTokenBeingMoved() {this.token_being_moved = null;}
-
-        public CardChess.Token GetTokenBeingMoved() {return this.token_being_moved;}
-
         private void BuildBoard(Transform UI) {
             for (int row = 0; row < BOARD_SIZE; row ++) {
                 for (int col = 0; col < BOARD_SIZE; col ++) {
@@ -133,6 +100,33 @@ namespace CardChess {
             this.SetToken(token_position, test_token);
             this.SetToken(token_position_2, test_token_2);
         }
+        public void ShowValidMoves(CardChess.Token token_being_moved) {
+                this.token_being_moved = token_being_moved;
+                List<UnityEngine.Vector2> movement_pattern = token_being_moved.GetMovementPattern();
+                for (int i = 0; i < movement_pattern.Count; i ++) {
+                    UnityEngine.Vector2 position = movement_pattern[i];
+                    UnityEngine.Vector2 relative_position = new UnityEngine.Vector2(position.x + token_being_moved.GetPosition().x, position.y + token_being_moved.GetPosition().y);
+                    if (!((relative_position.x > BOARD_SIZE - 1) || (relative_position.y > BOARD_SIZE - 1) || (relative_position.x < 0) || (relative_position.y < 0))) {
+                        GameObject tile_game_obj = this.board[(int) relative_position.y, (int) relative_position.x];
+                        CardChess.RegularTile tile = tile_game_obj.GetComponent<RegularTile>();
+                        if (!tile.IsOccupied()) {
+                            this.highlighted_tiles.Add(relative_position);
+                            tile.SetHighlight();
+                        } else {
+                            if (tile.GetTokenOnTile().GetPlayer() != token_being_moved.GetPlayer()) {
+                                this.highlighted_tiles.Add(relative_position);
+                                tile.SetEnemyHighlight();
+                            }
+                        }
+                    }
+                }
+        }
+        public GameObject[,] GetBoard() {return this.board;}
+        public bool IsTokenBeingMoved() { return this.token_being_moved != null; }
+        public void RemoveTokenBeingMoved() {this.token_being_moved = null;}
+        public CardChess.Token GetTokenBeingMoved() {return this.token_being_moved;}
+        public List<UnityEngine.Vector2> GetHighlightedTiles() {return this.highlighted_tiles;}
+
     }
 
 }

@@ -10,7 +10,7 @@ namespace CardChess {
             gameObject.SetActive(true);
         }
 
-        public void HideStats() {
+        public virtual void HideStats() {
             gameObject.SetActive(false);
         }
 
