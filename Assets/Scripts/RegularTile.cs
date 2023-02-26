@@ -14,34 +14,29 @@ namespace CardChess {
     public void OnPointerEnter(PointerEventData eventData) {
         CardChess.Token token_being_moved = CardChess.Board.Instance.GetTokenBeingMoved();
         if (this.token_occupying != null) {
-            if (!CardChess.Board.Instance.IsShowingStats()) {
-                    Board.Instance.ShowTokenStats(this.token_occupying, true);
+            if (!CardChess.PrimaryStats.Instance.IsShowingStats()) {
+                    CardChess.PrimaryStats.Instance.SetStats(this.token_occupying);
                     this.is_showing_stats = true;
             } else if (CardChess.Board.Instance.IsTokenBeingMoved() ) {
                 // Show another card in the bottom right of the screen
                 bool token_occuping_and_token_being_moved_are_different = this.token_occupying.GetID() != CardChess.Board.Instance.GetTokenBeingMoved().GetID();
                 if (token_occuping_and_token_being_moved_are_different) {
-                    Board.Instance.ShowTokenStats(this.token_occupying, false);
+                    CardChess.SecondaryStats.Instance.SetStats(this.token_occupying);
                     this.is_showing_stats_2 = true;
                 }
             }
         }
     }
-
-    // Hover over - show stats
-    // Click on tile with token - stats should shown permanently even when hovering off (lever here is isTokenBeingMoved set to true)
-    // Move token to another tile - stats should still be shown unless the user hovers off of that tile (isTokenBeingMoved is false)
-
     public void OnPointerExit(PointerEventData eventData) {
         // If we're showing the stats of the token on this tile and there isn't a token already being moved
         if ((this.is_showing_stats && !CardChess.Board.Instance.IsTokenBeingMoved()) || has_just_placed_token) {
             this.is_showing_stats = false;
             has_just_placed_token = false;
-            CardChess.Board.Instance.HideStats(true);
+            CardChess.PrimaryStats.Instance.HideStats();
         }
         if (this.is_showing_stats_2) {
             this.is_showing_stats_2 = false;
-            CardChess.Board.Instance.HideStats(false);
+            CardChess.SecondaryStats.Instance.HideStats();
         }
     }
 
@@ -61,8 +56,8 @@ namespace CardChess {
                 }
                 CardChess.Board.Instance.RemoveTokenBeingMoved();
                 CardChess.Board.Instance.UnhighlightTokens();
-                CardChess.Board.Instance.HideStats(true); 
-                CardChess.Board.Instance.HideStats(false);    
+                CardChess.PrimaryStats.Instance.HideStats();
+                CardChess.SecondaryStats.Instance.HideStats();
             } else {
                 CardChess.Board.Instance.SetToken(this.position, CardChess.Board.Instance.GetTokenBeingMoved());
                 this.has_just_placed_token = true;
@@ -71,7 +66,7 @@ namespace CardChess {
         if (!this.IsOccupied()) {
             CardChess.Board.Instance.RemoveTokenBeingMoved();
             CardChess.Board.Instance.UnhighlightTokens();
-            CardChess.Board.Instance.HideStats(true);
+            CardChess.PrimaryStats.Instance.HideStats();
         }
     }
     
