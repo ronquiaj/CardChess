@@ -25,10 +25,6 @@ namespace CardChess {
             }
 
             this.REGULAR_TILE = REGULAR_TILE;
-            this.board_game_object = new GameObject("Board");
-            this.board_game_object.transform.SetParent(UI);
-            this.board_game_object.transform.localPosition = new UnityEngine.Vector2(-225, -200);
-            this.board_game_object.transform.localScale = new UnityEngine.Vector2(1, 1);
             this.sprite = sprite;
 
             BuildBoard(UI);
@@ -56,14 +52,7 @@ namespace CardChess {
             CardChess.RegularTile target_tile = target_tile_game_obj.GetComponent<CardChess.RegularTile>();
             target_tile.SetTokenOnTile(token_being_moved);
             token_being_moved.SetPosition(target_coords);
-            RemoveTokenBeingMoved();
-            UnhighlightTokens();
-        }
-
-        public void KillToken(UnityEngine.Vector2 token_position) {
-            GameObject token_game_obj = this.board[(int) token_position.y, (int) token_position.x];
-            CardChess.Token token = token_game_obj.GetComponent<CardChess.RegularTile>().GetTokenOnTile();
-            this.graveyard.Add(token);
+            this.ResetTurn();
         }
 
         public void UnhighlightTokens() {
@@ -78,6 +67,11 @@ namespace CardChess {
         }
 
         private void BuildBoard(Transform UI) {
+            this.board_game_object = new GameObject("Board");
+            this.board_game_object.transform.SetParent(UI);
+            this.board_game_object.transform.localPosition = new UnityEngine.Vector2(-225, -200);
+            this.board_game_object.transform.localScale = new UnityEngine.Vector2(1, 1);
+
             for (int row = 0; row < BOARD_SIZE; row ++) {
                 for (int col = 0; col < BOARD_SIZE; col ++) {
                     GameObject new_tile = GameObject.Instantiate(this.REGULAR_TILE, new UnityEngine.Vector2(col * TILE_SIZE, row * TILE_SIZE), UnityEngine.Quaternion.identity, this.board_game_object.transform);
@@ -121,6 +115,27 @@ namespace CardChess {
                     }
                 }
         }
+        public void AttackToken(CardChess.Token token_being_attacked) {
+            int new_health = token_being_attacked.DecreaseTokenHealth(this.token_being_moved.GetTokenAttack());
+            if (new_health <= 0) {
+                CardChess.Board.Instance.KillToken(token_being_attacked);
+            }
+            this.ResetTurn();
+        }
+
+        public void KillToken(CardChess.Token token_being_attacked) {
+            GameObject tile_game_obj = this.board[(int) token_being_attacked.GetPosition().y, (int) token_being_attacked.GetPosition().x];
+            tile_game_obj.GetComponent<CardChess.RegularTile>().SetTokenOnTile(null);
+            this.graveyard.Add(token_being_attacked);
+        }
+
+        public void ResetTurn() {
+            this.RemoveTokenBeingMoved();
+            this.UnhighlightTokens();
+            CardChess.PrimaryStats.Instance.HideStats();
+            CardChess.SecondaryStats.Instance.HideStats();
+        }
+
         public GameObject[,] GetBoard() {return this.board;}
         public bool IsTokenBeingMoved() { return this.token_being_moved != null; }
         public void RemoveTokenBeingMoved() {this.token_being_moved = null;}

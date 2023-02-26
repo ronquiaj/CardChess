@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.WindowsRuntime;
 
 // Refers to the Card form of a token, hence inheriting from the Card class.
 namespace CardChess {

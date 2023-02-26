@@ -20,19 +20,11 @@ namespace CardChess {
 
         public UnityEngine.Vector2 GetPosition() {return this.position;}
         public void SetPosition(UnityEngine.Vector2 new_position) {this.position = new_position;}
-
         public int GetID() {return this.id;}
         public int GetPlayer() {return this.player;}
-
-        public int SetTokenHealth(int health_adder) {
-            this.token_health += health_adder;
-            return this.token_health;
-        }
-        public int SetTokenAttack(int attack_adder) {
-            this.token_attack += attack_adder;
-            return this.token_attack;
-        }
-
+        public int DecreaseTokenHealth(int damage) { return this.token_health -= damage; }
+        public int IncreaseTokenHealth(int health) { return this.token_health += health; }
+        public int SetTokenAttack(int attack_adder) { return this.token_attack += attack_adder; }
         public int GetTokenHealth() {return this.token_health;}
         public int GetTokenAttack() {return this.token_attack;}
         public List<UnityEngine.Vector2> GetTokenMovementPattern() {return this.token_movement_pattern;}
