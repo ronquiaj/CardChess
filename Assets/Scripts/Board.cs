@@ -141,7 +141,6 @@ namespace CardChess {
         public void RemoveTokenBeingMoved() {this.token_being_moved = null;}
         public CardChess.Token GetTokenBeingMoved() {return this.token_being_moved;}
         public List<UnityEngine.Vector2> GetHighlightedTiles() {return this.highlighted_tiles;}
-
     }
 
 }

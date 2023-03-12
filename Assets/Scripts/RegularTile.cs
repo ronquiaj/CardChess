@@ -43,7 +43,7 @@ namespace CardChess {
             // If highlighted and occupied, this means that the token on this tile is being attacked
             if (should_attack_token) CardChess.Board.Instance.AttackToken(this.token_occupying);
             else CardChess.Board.Instance.SetToken(this.position, CardChess.Board.Instance.GetTokenBeingMoved());
-        } else CardChess.Board.Instance.ResetTurn();
+}       else CardChess.Board.Instance.ResetTurn();
     }
 
     private void ShowPrimaryStatsFromTileOnThisToken(CardChess.Token token_being_moved) {

@@ -14,7 +14,6 @@ namespace CardChess {
             new_health_game_obj.SetActive(true);
             new_health_game_obj.transform.Find("Health Text").gameObject.GetComponent<TextMeshProUGUI>().text = (token_health + health_adder).ToString();
         }
-
         public override void HideStats() {
             GameObject new_health_game_obj = transform.Find("New Health").gameObject;
             gameObject.SetActive(false);
