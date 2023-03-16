@@ -1,6 +1,3 @@
-using CardChess;
-using UnityEngine;
-
 namespace CardChess {
     public interface ITile {
     void SetTokenOnTile(CardChess.Token token);
